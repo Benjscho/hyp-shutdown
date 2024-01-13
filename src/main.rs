@@ -1,11 +1,11 @@
-#![deny(warnings)]
-
 use std::convert::Infallible;
+use std::time::Duration;
 
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 
 async fn hello(_: Request<Body>) -> Result<Response<Body>, Infallible> {
+    tokio::time::sleep(Duration::from_secs(5)).await;
     Ok(Response::new(Body::from("Hello World!")))
 }
 
@@ -24,7 +24,11 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let addr = ([127, 0, 0, 1], 3000).into();
 
-    let server = Server::bind(&addr).serve(make_svc);
+    // This will never shut down while a connection is open
+    // let server = Server::bind(&addr).serve(make_svc);
+
+    // This will finish responding to a client then shut down the connection
+    let server = Server::bind(&addr).http2_only(true).serve(make_svc);
 
     let graceful = server.with_graceful_shutdown(shutdown_signal());
 

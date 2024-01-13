@@ -16,6 +16,8 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Open a TCP connection to the remote host
     let stream = TcpStream::connect(address).await?;
 
+    //let _ = stream.try_read(&mut [0; 128]);
+
     std::future::pending::<()>().await;
 
     Ok(())
